@@ -1,4 +1,6 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { apiReference } from '@scalar/nestjs-api-reference';
 import { EduSpmModule } from './edu-spm.module';
 import { AllExceptionsFilter, TransformInterceptor } from '@app/core';
 
@@ -8,6 +10,23 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
   
+  const config = new DocumentBuilder()
+    .setTitle('AQ Edu Smart - SPM API')
+    .setDescription('Tài liệu API cho phân hệ Quản lý đối tác tuyển sinh')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+
+  app.use(
+    '/api',
+    apiReference({
+      spec: {
+        content: document,
+      },
+      theme: 'purple',
+    }),
+  );
+
   await app.listen(process.env.port ?? 3002);
 }
 bootstrap();
