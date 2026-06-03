@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/main-api/src",
+  "sourceRoot": "apps/edu-spm/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/main-api/tsconfig.app.json"
+    "tsConfigPath": "apps/edu-spm/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/main-api",
+  "root": "apps/edu-spm",
   "projects": {
     "edu-admission": {
       "type": "application",
