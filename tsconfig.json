@@ -27,6 +27,18 @@
       ],
       "@app/system-management/*": [
         "libs/system-management/src/*"
+      ],
+      "@app/core": [
+        "libs/core/src"
+      ],
+      "@app/core/*": [
+        "libs/core/src/*"
+      ],
+      "@app/shared-types": [
+        "libs/shared-types/src"
+      ],
+      "@app/shared-types/*": [
+        "libs/shared-types/src/*"
       ]
     }
   }
