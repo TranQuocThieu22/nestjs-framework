@@ -10,13 +10,40 @@
   "monorepo": true,
   "root": "apps/main-api",
   "projects": {
-    "main-api": {
+    "edu-admission": {
       "type": "application",
-      "root": "apps/main-api",
+      "root": "apps/edu-admission",
       "entryFile": "main",
-      "sourceRoot": "apps/main-api/src",
+      "sourceRoot": "apps/edu-admission/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/main-api/tsconfig.app.json"
+        "tsConfigPath": "apps/edu-admission/tsconfig.app.json"
+      }
+    },
+    "edu-spm": {
+      "type": "application",
+      "root": "apps/edu-spm",
+      "entryFile": "main",
+      "sourceRoot": "apps/edu-spm/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/edu-spm/tsconfig.app.json"
+      }
+    },
+    "edu-stm": {
+      "type": "application",
+      "root": "apps/edu-stm",
+      "entryFile": "main",
+      "sourceRoot": "apps/edu-stm/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/edu-stm/tsconfig.app.json"
+      }
+    },
+    "system-management": {
+      "type": "library",
+      "root": "libs/system-management",
+      "entryFile": "index",
+      "sourceRoot": "libs/system-management/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/system-management/tsconfig.lib.json"
       }
     }
   }
