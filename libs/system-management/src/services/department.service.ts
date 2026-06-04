@@ -10,6 +10,7 @@ import {
   CreateDepartmentDto,
   UpdateDepartmentDto,
 } from '../dto/department.dto';
+import { FilterOperator, paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class DepartmentService {
@@ -48,6 +49,23 @@ export class DepartmentService {
     return this.departmentRepo.find({
       where: { tenantId },
       order: { createdAt: 'ASC' },
+    });
+  }
+
+  async findAllPaginated(tenantId: string, query: PaginateQuery) {
+    const queryBuilder = this.departmentRepo
+      .createQueryBuilder('department')
+      .where('department.tenantId = :tenantId', { tenantId });
+
+    return paginate(query, queryBuilder, {
+      sortableColumns: ['createdAt', 'name', 'code'],
+      nullSort: 'last',
+      defaultSortBy: [['createdAt', 'DESC']],
+      searchableColumns: ['name', 'code', 'description'],
+      filterableColumns: {
+        type: [FilterOperator.EQ, FilterOperator.IN],
+        parentId: [FilterOperator.EQ, FilterOperator.NULL],
+      },
     });
   }
 

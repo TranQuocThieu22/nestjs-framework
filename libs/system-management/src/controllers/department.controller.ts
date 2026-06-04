@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@app/iam';
+import { Paginate, PaginateQuery, ApiPaginationQuery } from 'nestjs-paginate';
 import { DepartmentService } from '../services/department.service';
 import {
   CreateDepartmentDto,
@@ -31,11 +32,26 @@ export class DepartmentController {
     return this.departmentService.create(tenantId, createDto);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Lấy danh sách đơn vị dạng phẳng (Table)' })
+  @Get('flat')
+  @ApiOperation({
+    summary: 'Lấy danh sách đơn vị dạng phẳng (Không phân trang)',
+  })
   findAllFlat(@Req() req: any) {
     const tenantId = req.user.tenantId;
     return this.departmentService.findAllFlat(tenantId);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lấy danh sách đơn vị (Có phân trang, search, filter)',
+  })
+  @ApiPaginationQuery({
+    sortableColumns: ['createdAt', 'name', 'code'],
+    searchableColumns: ['name', 'code', 'description'],
+  })
+  findAllPaginated(@Req() req: any, @Paginate() query: PaginateQuery) {
+    const tenantId = req.user.tenantId;
+    return this.departmentService.findAllPaginated(tenantId, query);
   }
 
   @Get('tree')
