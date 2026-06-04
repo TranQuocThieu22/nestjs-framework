@@ -17,6 +17,11 @@ export class KeycloakService {
   }
 
   async getAdminClient(tenantId: string) {
+    // Đảm bảo luôn auth vào realm master trước
+    this.kcAdminClient.setConfig({
+      realmName: 'master',
+    });
+
     // Authenticate admin client
     await this.kcAdminClient.auth({
       username: this.configService.get<string>(
