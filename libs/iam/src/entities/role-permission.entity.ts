@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -14,6 +15,9 @@ import { RoleEntity } from './role.entity';
 export class RolePermissionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'tenant_id' })
+  tenantId: string;
 
   @ManyToOne(() => RoleEntity)
   @JoinColumn({ name: 'role_id' })

@@ -7,6 +7,7 @@ import { CoreModule } from '@app/core';
 import { ActivityModule } from './modules/activity/activity.module';
 import { EduSpmController } from './edu-spm.controller';
 import { EduSpmService } from './edu-spm.service';
+import { IamModule } from '@app/iam';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { EduSpmService } from './edu-spm.service';
     CoreModule,
     SystemManagementModule,
     ActivityModule,
+    IamModule,
   ],
   controllers: [EduSpmController],
   providers: [EduSpmService],

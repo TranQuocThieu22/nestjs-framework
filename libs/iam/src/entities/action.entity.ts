@@ -11,7 +11,10 @@ export class ActionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ name: 'tenant_id' })
+  tenantId: string;
+
+  @Column()
   code: string;
 
   @Column()

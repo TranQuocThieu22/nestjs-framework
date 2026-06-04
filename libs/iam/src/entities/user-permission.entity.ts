@@ -15,6 +15,9 @@ export class UserPermissionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'tenant_id' })
+  tenantId: string;
+
   @Column({ name: 'user_id' }) // User ID từ Keycloak
   userId: string;
 

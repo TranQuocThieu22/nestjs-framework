@@ -6,6 +6,11 @@ import { RolePermissionEntity } from './entities/role-permission.entity';
 import { RoleEntity } from './entities/role.entity';
 import { UserPermissionEntity } from './entities/user-permission.entity';
 
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CaslAbilityFactory } from './services/casl-ability.factory';
+import { PoliciesGuard } from './guards/policies.guard';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -16,7 +21,7 @@ import { UserPermissionEntity } from './entities/user-permission.entity';
       UserPermissionEntity,
     ]),
   ],
-  providers: [],
-  exports: [TypeOrmModule],
+  providers: [JwtStrategy, JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
+  exports: [TypeOrmModule, JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
 })
 export class IamModule {}

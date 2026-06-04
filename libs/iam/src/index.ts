@@ -4,3 +4,6 @@ export * from './entities/module.entity';
 export * from './entities/role-permission.entity';
 export * from './entities/role.entity';
 export * from './entities/user-permission.entity';
+export * from './guards/jwt-auth.guard';
+export * from './guards/policies.guard';
+export * from './services/casl-ability.factory';
