@@ -1,22 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountController } from './controllers/account.controller';
-import { AccountService } from './services/account.service';
-import { UserEntity } from './entities/user.entity';
-import { IamModule } from '@app/iam';
+import { AccountModule } from './modules/account/account.module';
+import { DepartmentModule } from './modules/department/department.module';
 
-// Department
-import { DepartmentEntity } from './entities/department.entity';
-import { DepartmentController } from './controllers/department.controller';
-import { DepartmentService } from './services/department.service';
-
+/**
+ * Module tổng hợp phân hệ Quản trị hệ thống.
+ * Chỉ gom các feature module con; mỗi feature tự khai báo entity/controller/service của nó.
+ */
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity, DepartmentEntity]),
-    IamModule,
-  ],
-  controllers: [AccountController, DepartmentController],
-  providers: [AccountService, DepartmentService],
-  exports: [TypeOrmModule, AccountService, DepartmentService],
+  imports: [AccountModule, DepartmentModule],
+  exports: [AccountModule, DepartmentModule],
 })
 export class SystemManagementModule {}

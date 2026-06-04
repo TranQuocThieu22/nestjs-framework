@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RolePermissionEntity } from '../entities/role-permission.entity';
 import { UserPermissionEntity } from '../entities/user-permission.entity';
-import type { ActiveUserData } from '../interfaces/active-user-data.interface';
+import type { ActiveUserData } from '@app/shared-types';
 
 export type AppAbility = MongoAbility;
 

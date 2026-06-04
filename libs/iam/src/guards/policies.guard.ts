@@ -5,7 +5,7 @@ import {
   CaslAbilityFactory,
   AppAbility,
 } from '../services/casl-ability.factory';
-import type { ActiveUserData } from '../interfaces/active-user-data.interface';
+import type { ActiveUserData } from '@app/shared-types';
 
 export interface PolicyHandler {
   handle(ability: AppAbility): boolean;

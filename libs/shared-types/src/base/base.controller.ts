@@ -3,8 +3,8 @@ import { ApiOperation, ApiBody } from '@nestjs/swagger';
 import { Paginate, ApiPaginationQuery, PaginateConfig } from 'nestjs-paginate';
 import type { PaginateQuery } from 'nestjs-paginate';
 import { DeepPartial } from 'typeorm';
-import { ActiveUser } from '@app/iam';
-import type { ActiveUserData } from '@app/iam';
+import { ActiveUser } from '../decorators/active-user.decorator';
+import type { ActiveUserData } from '../interfaces';
 import { AbstractTenantEntity } from '../entities/base.entity';
 import { AbstractBaseService } from './base.service';
 

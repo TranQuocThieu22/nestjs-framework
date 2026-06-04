@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import * as jwksRsa from 'jwks-rsa';
-import type { ActiveUserData } from '../interfaces/active-user-data.interface';
+import type { ActiveUserData } from '@app/shared-types';
 
 /** Phần header của JWT (đã giải mã base64) */
 interface JwtHeader {

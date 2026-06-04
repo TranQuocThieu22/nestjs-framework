@@ -4,6 +4,9 @@ export * from './pagination/page-options.dto';
 export * from './pagination/page.dto';
 export * from './interfaces';
 
+// Decorators
+export * from './decorators/active-user.decorator';
+
 // Entities
 export * from './entities/base.entity';
 

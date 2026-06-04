@@ -9,5 +9,8 @@ export * from './guards/policies.guard';
 export * from './services/casl-ability.factory';
 
 export * from './strategies/jwt.strategy';
-export * from './decorators/active-user.decorator';
-export * from './interfaces/active-user-data.interface';
+
+// Re-export contract người dùng đăng nhập từ tầng nền tảng (shared-types)
+// để các consumer cũ vẫn import được qua @app/iam.
+export { ActiveUser } from '@app/shared-types';
+export type { ActiveUserData } from '@app/shared-types';

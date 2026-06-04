@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { SystemManagementModule } from '@app/system-management';
-import { CoreModule } from '@app/core';
+import { CoreModule, DatabaseModule } from '@app/core';
 import { ActivityModule } from './modules/activity/activity.module';
-import { EduSpmController } from './edu-spm.controller';
-import { EduSpmService } from './edu-spm.service';
+import { HealthController } from './health/health.controller';
 import { IamModule } from '@app/iam';
 
 @Module({
@@ -23,26 +21,12 @@ import { IamModule } from '@app/iam';
         PORT: Joi.number().default(3002),
       }),
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('SPM_DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: true, // Only for development
-      }),
-    }),
+    DatabaseModule.forApp('SPM_DB_NAME'),
     CoreModule,
     SystemManagementModule,
     ActivityModule,
     IamModule,
   ],
-  controllers: [EduSpmController],
-  providers: [EduSpmService],
+  controllers: [HealthController],
 })
 export class EduSpmModule {}

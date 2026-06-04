@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import helmet from 'helmet';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { EduSpmModule } from './edu-spm.module';
@@ -16,6 +16,12 @@ async function bootstrap() {
     }),
   );
   app.enableCors();
+
+  // API Versioning theo URI: mặc định v1 (vd: /v1/system/departments)
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
 
   // Validation & Transformation
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
