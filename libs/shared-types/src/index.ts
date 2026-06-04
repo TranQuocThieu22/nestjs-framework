@@ -6,3 +6,7 @@ export * from './interfaces';
 
 // Entities
 export * from './entities/base.entity';
+
+// Base Classes
+export * from './base/base.service';
+export * from './base/base.controller';
