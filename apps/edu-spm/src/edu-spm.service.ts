@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EduSpmService {
-  getHello(): string {
-    return 'Hello World!';
+  getProjectTitle(): string {
+    return 'Dự án SPM - Hệ thống Quản lý Đối tác Tuyển sinh';
   }
 }
