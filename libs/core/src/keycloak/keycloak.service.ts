@@ -69,12 +69,10 @@ export class KeycloakService {
       });
 
       return user.id; // Trả về Keycloak ID (UUID)
-    } catch (error) {
-      console.error(
-        'Keycloak Create User Error:',
-        error?.response?.data || error,
-      );
-      throw new InternalServerErrorException('Lỗi tạo user trên Keycloak');
+    } catch (error: any) {
+      console.error('Keycloak Create User Error:', error?.response?.data || error);
+      const kcError = error?.response?.data?.errorMessage || error?.message || 'Lỗi không xác định';
+      throw new InternalServerErrorException(kcError);
     }
   }
 }

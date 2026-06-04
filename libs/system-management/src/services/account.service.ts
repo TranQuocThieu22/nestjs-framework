@@ -44,11 +44,10 @@ export class AccountService {
       // 3. TODO: Nếu có roleCode, gọi IamService để gắn quyền (UserPermissionEntity)
 
       return savedUser;
-    } catch (error) {
-      console.error('Lỗi khi tạo user:', error);
-      throw new InternalServerErrorException(
-        'Không thể tạo người dùng. Vui lòng kiểm tra lại cấu hình Keycloak.',
-      );
+    } catch (error: any) {
+      console.error('Lỗi khi tạo user:', error?.response?.data || error);
+      const errorMessage = error?.response?.data?.errorMessage || error?.message || 'Lỗi không xác định từ Keycloak';
+      throw new InternalServerErrorException(`Lỗi tạo user: ${errorMessage}`);
     }
   }
 
