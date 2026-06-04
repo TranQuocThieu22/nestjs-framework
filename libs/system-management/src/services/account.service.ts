@@ -46,7 +46,10 @@ export class AccountService {
       return savedUser;
     } catch (error: any) {
       console.error('Lỗi khi tạo user:', error?.response?.data || error);
-      const errorMessage = error?.response?.data?.errorMessage || error?.message || 'Lỗi không xác định từ Keycloak';
+      const errorMessage =
+        error?.response?.data?.errorMessage ||
+        error?.message ||
+        'Lỗi không xác định từ Keycloak';
       throw new InternalServerErrorException(`Lỗi tạo user: ${errorMessage}`);
     }
   }
