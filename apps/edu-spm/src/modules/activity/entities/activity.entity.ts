@@ -1,4 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { ActivityStatus } from '@app/shared-types';
 
 @Entity('activities')
@@ -18,7 +23,7 @@ export class ActivityEntity {
   @Column({
     type: 'enum',
     enum: ActivityStatus,
-    default: ActivityStatus.PENDING
+    default: ActivityStatus.PENDING,
   })
   status: ActivityStatus;
 

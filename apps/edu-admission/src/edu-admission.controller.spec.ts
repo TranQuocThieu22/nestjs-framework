@@ -11,7 +11,9 @@ describe('EduAdmissionController', () => {
       providers: [EduAdmissionService],
     }).compile();
 
-    eduAdmissionController = app.get<EduAdmissionController>(EduAdmissionController);
+    eduAdmissionController = app.get<EduAdmissionController>(
+      EduAdmissionController,
+    );
   });
 
   describe('root', () => {

@@ -2,7 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ActivityRepository } from '../repositories/activity.repository';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActivityEntity } from '../entities/activity.entity';
-import { ActivityStatus } from '@app/shared-types';
+import {
+  ActivityStatus,
+  PageDto,
+  PageMetaDto,
+  PageOptionsDto,
+} from '@app/shared-types';
 
 @Injectable()
 export class ActivityService {
@@ -19,7 +24,21 @@ export class ActivityService {
     return this.activityRepository.save(activity);
   }
 
-  async getAllActivities(): Promise<ActivityEntity[]> {
-    return this.activityRepository.find({ order: { createdAt: 'DESC' } });
+  async getAllActivities(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<ActivityEntity>> {
+    const queryBuilder = this.activityRepository.createQueryBuilder('activity');
+
+    queryBuilder
+      .orderBy('activity.createdAt', pageOptionsDto.order)
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 }

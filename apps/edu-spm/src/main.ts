@@ -1,15 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { EduSpmModule } from './edu-spm.module';
 import { AllExceptionsFilter, TransformInterceptor } from '@app/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(EduSpmModule);
-  
+
+  // Security
+  app.use(helmet());
+  app.enableCors();
+
+  // Validation & Transformation
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // Exception Filters & Interceptors
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
-  
+
   const config = new DocumentBuilder()
     .setTitle('AQ Edu Smart - SPM API')
     .setDescription('Tài liệu API cho phân hệ Quản lý đối tác tuyển sinh')

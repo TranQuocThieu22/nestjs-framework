@@ -1,12 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateActivityDto {
-  @ApiProperty({ example: 'KH-558', description: 'Activity Code' })
+  @ApiProperty({
+    description: 'The unique code for the activity',
+    example: 'ACT-2026-001',
+  })
+  @IsString()
+  @IsNotEmpty()
   code: string;
 
-  @ApiProperty({ example: 'HD-0001', description: 'Activity Name' })
+  @ApiProperty({
+    description: 'The name of the activity',
+    example: 'Tuyển sinh đợt 1',
+  })
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'HK1', description: 'Semester' })
+  @ApiProperty({ description: 'Semester of the activity', example: 'HK1' })
+  @IsString()
+  @IsNotEmpty()
   semester: string;
 }

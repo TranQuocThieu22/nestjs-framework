@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { ActivityService } from '../services/activity.service';
+import { PageOptionsDto } from '@app/shared-types';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateActivityDto } from '../dto/create-activity.dto';
+import { ActivityService } from '../services/activity.service';
 
 @ApiTags('Activity Management (SPM)')
 @Controller('activities')
@@ -15,8 +16,8 @@ export class ActivityController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all activities' })
-  async findAll() {
-    return this.activityService.getAllActivities();
+  @ApiOperation({ summary: 'Get all activities with pagination' })
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    return this.activityService.getAllActivities(pageOptionsDto);
   }
 }
