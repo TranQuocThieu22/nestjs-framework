@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PageOptionsDto } from './page-options.dto';
 
 export interface PageMetaDtoParameters {
-  pageOptionsDto: any; // We'll type this properly later
+  pageOptionsDto: PageOptionsDto;
   itemCount: number;
 }
 
