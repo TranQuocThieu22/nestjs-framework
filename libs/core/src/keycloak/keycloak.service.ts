@@ -2,6 +2,16 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import KcAdminClient from '@keycloak/keycloak-admin-client';
 import { ConfigService } from '@nestjs/config';
 
+/** Hình dạng lỗi trả về từ Keycloak Admin Client (axios-based) */
+export interface KeycloakError {
+  message?: string;
+  response?: {
+    data?: {
+      errorMessage?: string;
+    };
+  };
+}
+
 @Injectable()
 export class KeycloakService {
   private kcAdminClient: KcAdminClient;
@@ -74,14 +84,15 @@ export class KeycloakService {
       });
 
       return user.id; // Trả về Keycloak ID (UUID)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as KeycloakError;
       console.error(
         'Keycloak Create User Error:',
-        error?.response?.data || error,
+        err?.response?.data ?? error,
       );
       const kcError =
-        error?.response?.data?.errorMessage ||
-        error?.message ||
+        err?.response?.data?.errorMessage ??
+        err?.message ??
         'Lỗi không xác định';
       throw new InternalServerErrorException(kcError);
     }

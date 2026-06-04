@@ -1,16 +1,17 @@
-import { Repository, DeepPartial, FindOptionsWhere } from 'typeorm';
 import {
-  paginate,
-  PaginateQuery,
-  PaginateConfig,
-} from 'nestjs-paginate';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+  Repository,
+  DeepPartial,
+  FindOptionsWhere,
+  FindOptionsOrder,
+} from 'typeorm';
+import { paginate, PaginateQuery, PaginateConfig } from 'nestjs-paginate';
+import { NotFoundException } from '@nestjs/common';
 import { AbstractTenantEntity } from '../entities/base.entity';
 
 export abstract class AbstractBaseService<
   Entity extends AbstractTenantEntity,
-  CreateDto extends DeepPartial<Entity> = any,
-  UpdateDto extends DeepPartial<Entity> = any,
+  CreateDto extends DeepPartial<Entity> = DeepPartial<Entity>,
+  UpdateDto extends DeepPartial<Entity> = DeepPartial<Entity>,
 > {
   constructor(
     protected readonly repository: Repository<Entity>,
@@ -19,14 +20,17 @@ export abstract class AbstractBaseService<
   ) {}
 
   async create(tenantId: string, dto: CreateDto): Promise<Entity> {
-    const entity = this.repository.create({ ...dto, tenantId } as unknown as DeepPartial<Entity>);
+    const entity = this.repository.create({
+      ...dto,
+      tenantId,
+    } as unknown as DeepPartial<Entity>);
     return this.repository.save(entity);
   }
 
   async findAllFlat(tenantId: string): Promise<Entity[]> {
     return this.repository.find({
       where: { tenantId } as unknown as FindOptionsWhere<Entity>,
-      order: { createdAt: 'ASC' } as any,
+      order: { createdAt: 'ASC' } as FindOptionsOrder<Entity>,
     });
   }
 
@@ -54,7 +58,10 @@ export abstract class AbstractBaseService<
     return this.repository.save(entity);
   }
 
-  async softRemove(id: string, tenantId: string): Promise<{ success: boolean; message: string }> {
+  async softRemove(
+    id: string,
+    tenantId: string,
+  ): Promise<{ success: boolean; message: string }> {
     const entity = await this.findOne(id, tenantId);
     await this.repository.softRemove(entity);
     return { success: true, message: 'Đã xóa thành công' };

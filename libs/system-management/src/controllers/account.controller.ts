@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AccountService } from '../services/account.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { JwtAuthGuard, PoliciesGuard, CHECK_POLICIES_KEY } from '@app/iam';
+import { JwtAuthGuard, PoliciesGuard, ActiveUser } from '@app/iam';
+import type { ActiveUserData } from '@app/iam';
 
 @ApiTags('Quản lý danh sách tài khoản')
 @ApiBearerAuth()
@@ -14,14 +15,17 @@ export class AccountController {
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách tài khoản' })
   // @ReflectMetadata(CHECK_POLICIES_KEY, [{ handle: (ability) => ability.can('READ', 'QuanLyTaiKhoan') }]) // TODO: Thiết lập sau
-  getAccounts(@Req() req) {
-    // req.user được Inject từ JwtStrategy
-    return this.accountService.getAccounts(req.user.tenantId);
+  getAccounts(@ActiveUser() user: ActiveUserData) {
+    // user được Inject từ JwtStrategy thông qua decorator @ActiveUser
+    return this.accountService.getAccounts(user.tenantId);
   }
 
   @Post()
   @ApiOperation({ summary: 'Thêm mới tài khoản (Đồng bộ Keycloak)' })
-  createUser(@Req() req, @Body() createUserDto: CreateUserDto) {
-    return this.accountService.createUser(req.user.tenantId, createUserDto);
+  createUser(
+    @ActiveUser() user: ActiveUserData,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    return this.accountService.createUser(user.tenantId, createUserDto);
   }
 }

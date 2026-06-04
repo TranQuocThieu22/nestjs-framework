@@ -1,17 +1,10 @@
-import {
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete,
-  Req,
-  Type,
-} from '@nestjs/common';
+import { Get, Post, Body, Put, Param, Delete, Type } from '@nestjs/common';
 import { ApiOperation, ApiBody } from '@nestjs/swagger';
 import { Paginate, ApiPaginationQuery, PaginateConfig } from 'nestjs-paginate';
 import type { PaginateQuery } from 'nestjs-paginate';
 import { DeepPartial } from 'typeorm';
+import { ActiveUser } from '@app/iam';
+import type { ActiveUserData } from '@app/iam';
 import { AbstractTenantEntity } from '../entities/base.entity';
 import { AbstractBaseService } from './base.service';
 
@@ -26,7 +19,7 @@ export function BaseControllerFactory<
 ) {
   abstract class BaseControllerHost {
     constructor(
-      protected readonly baseService: AbstractBaseService<
+      public readonly baseService: AbstractBaseService<
         Entity,
         CreateDto,
         UpdateDto
@@ -36,44 +29,47 @@ export function BaseControllerFactory<
     @Post()
     @ApiOperation({ summary: 'Thêm mới' })
     @ApiBody({ type: createDtoClass })
-    create(@Req() req: any, @Body() createDto: CreateDto) {
-      return this.baseService.create(req.user.tenantId, createDto);
+    create(@ActiveUser() user: ActiveUserData, @Body() createDto: CreateDto) {
+      return this.baseService.create(user.tenantId, createDto);
     }
 
     @Get('flat')
     @ApiOperation({ summary: 'Lấy danh sách dạng phẳng (Không phân trang)' })
-    findAllFlat(@Req() req: any) {
-      return this.baseService.findAllFlat(req.user.tenantId);
+    findAllFlat(@ActiveUser() user: ActiveUserData) {
+      return this.baseService.findAllFlat(user.tenantId);
     }
 
     @Get()
     @ApiOperation({ summary: 'Lấy danh sách (Có phân trang, search, filter)' })
     @ApiPaginationQuery(paginateConfig)
-    findAllPaginated(@Req() req: any, @Paginate() query: PaginateQuery) {
-      return this.baseService.findAllPaginated(req.user.tenantId, query);
+    findAllPaginated(
+      @ActiveUser() user: ActiveUserData,
+      @Paginate() query: PaginateQuery,
+    ) {
+      return this.baseService.findAllPaginated(user.tenantId, query);
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Lấy chi tiết 1 bản ghi' })
-    findOne(@Req() req: any, @Param('id') id: string) {
-      return this.baseService.findOne(id, req.user.tenantId);
+    findOne(@ActiveUser() user: ActiveUserData, @Param('id') id: string) {
+      return this.baseService.findOne(id, user.tenantId);
     }
 
     @Put(':id')
     @ApiOperation({ summary: 'Cập nhật' })
     @ApiBody({ type: updateDtoClass })
     update(
-      @Req() req: any,
+      @ActiveUser() user: ActiveUserData,
       @Param('id') id: string,
       @Body() updateDto: UpdateDto,
     ) {
-      return this.baseService.update(id, req.user.tenantId, updateDto);
+      return this.baseService.update(id, user.tenantId, updateDto);
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Xóa (Soft Delete)' })
-    remove(@Req() req: any, @Param('id') id: string) {
-      return this.baseService.softRemove(id, req.user.tenantId);
+    remove(@ActiveUser() user: ActiveUserData, @Param('id') id: string) {
+      return this.baseService.softRemove(id, user.tenantId);
     }
   }
 

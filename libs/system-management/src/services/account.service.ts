@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { KeycloakService } from '@app/core';
+import type { KeycloakError } from '@app/core';
 
 @Injectable()
 export class AccountService {
@@ -44,11 +45,12 @@ export class AccountService {
       // 3. TODO: Nếu có roleCode, gọi IamService để gắn quyền (UserPermissionEntity)
 
       return savedUser;
-    } catch (error: any) {
-      console.error('Lỗi khi tạo user:', error?.response?.data || error);
+    } catch (error: unknown) {
+      const err = error as KeycloakError;
+      console.error('Lỗi khi tạo user:', err?.response?.data ?? error);
       const errorMessage =
-        error?.response?.data?.errorMessage ||
-        error?.message ||
+        err?.response?.data?.errorMessage ??
+        err?.message ??
         'Lỗi không xác định từ Keycloak';
       throw new InternalServerErrorException(`Lỗi tạo user: ${errorMessage}`);
     }

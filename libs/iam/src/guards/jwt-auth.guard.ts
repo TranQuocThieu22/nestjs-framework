@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import type { ActiveUserData } from '../interfaces/active-user-data.interface';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -12,11 +13,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info) {
-    if (err || !user) {
-      throw (
-        err ||
-        new UnauthorizedException('Bạn chưa đăng nhập hoặc token không hợp lệ.')
+  handleRequest<TUser = ActiveUserData>(err: unknown, user: TUser): TUser {
+    if (err) {
+      throw err instanceof Error
+        ? err
+        : new UnauthorizedException(
+            'Bạn chưa đăng nhập hoặc token không hợp lệ.',
+          );
+    }
+    if (!user) {
+      throw new UnauthorizedException(
+        'Bạn chưa đăng nhập hoặc token không hợp lệ.',
       );
     }
     return user;

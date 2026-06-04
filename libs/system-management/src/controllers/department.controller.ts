@@ -1,6 +1,7 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@app/iam';
+import { JwtAuthGuard, ActiveUser } from '@app/iam';
+import type { ActiveUserData } from '@app/iam';
 import { DepartmentService } from '../services/department.service';
 import {
   CreateDepartmentDto,
@@ -8,16 +9,16 @@ import {
 } from '../dto/department.dto';
 import { BaseControllerFactory } from '@app/shared-types';
 import { DepartmentEntity } from '../entities/department.entity';
-import { FilterOperator } from 'nestjs-paginate';
+import { FilterOperator, PaginateConfig } from 'nestjs-paginate';
 
-const paginateConfig = {
+const paginateConfig: PaginateConfig<DepartmentEntity> = {
   sortableColumns: ['createdAt', 'name', 'code'],
   searchableColumns: ['name', 'code', 'description'],
   filterableColumns: {
     type: [FilterOperator.EQ, FilterOperator.IN],
     parentId: [FilterOperator.EQ, FilterOperator.NULL],
   },
-} as any;
+};
 
 @ApiTags('Quản lý Danh mục Đơn vị')
 @ApiBearerAuth()
@@ -34,8 +35,7 @@ export class DepartmentController extends BaseControllerFactory<
 
   @Get('tree')
   @ApiOperation({ summary: 'Lấy danh sách đơn vị dạng cây phân cấp (Tree)' })
-  findAllTree(@Req() req: any) {
-    const tenantId = req.user.tenantId;
-    return this.departmentService.findAllTree(tenantId);
+  findAllTree(@ActiveUser() user: ActiveUserData) {
+    return this.departmentService.findAllTree(user.tenantId);
   }
 }

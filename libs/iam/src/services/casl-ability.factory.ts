@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RolePermissionEntity } from '../entities/role-permission.entity';
 import { UserPermissionEntity } from '../entities/user-permission.entity';
+import type { ActiveUserData } from '../interfaces/active-user-data.interface';
 
 export type AppAbility = MongoAbility;
 
@@ -20,7 +21,7 @@ export class CaslAbilityFactory {
     private readonly userPermissionRepo: Repository<UserPermissionEntity>,
   ) {}
 
-  async createForUser(user: any): Promise<AppAbility> {
+  async createForUser(user: ActiveUserData): Promise<AppAbility> {
     const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
 
     // 1. Tải quyền hạn từ Nhóm (kết hợp với tenantId để chống lộ dữ liệu chéo)
