@@ -1,4 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -6,7 +7,6 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { DepartmentType } from '../entities/department.entity';
 
 export class CreateDepartmentDto {
@@ -24,7 +24,7 @@ export class CreateDepartmentDto {
   name: string;
 
   @ApiProperty({ description: 'Trực thuộc đơn vị (ID)', required: false })
-  @Transform(({ value }) => (value === '' ? null : value))
+  @Transform(({ value }: { value: string }) => (value === '' ? null : value))
   @IsUUID()
   @IsOptional()
   parentId?: string;
