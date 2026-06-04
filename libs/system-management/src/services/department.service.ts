@@ -119,7 +119,7 @@ export class DepartmentService {
       );
     }
 
-    await this.departmentRepo.remove(entity);
+    await this.departmentRepo.softRemove(entity);
     return { success: true, message: 'Đã xóa thành công' };
   }
 }

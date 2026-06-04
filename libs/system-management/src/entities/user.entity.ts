@@ -1,10 +1,5 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { AbstractTenantEntity } from '@app/shared-types';
 
 export enum UserStatus {
   ACTIVE = 'ACTIVE',
@@ -12,13 +7,7 @@ export enum UserStatus {
 }
 
 @Entity('sys_users')
-export class UserEntity {
-  @PrimaryColumn('uuid') // ID này sẽ được đồng bộ từ Keycloak
-  id: string;
-
-  @Column({ name: 'tenant_id' }) // Phân lập đa khách hàng
-  tenantId: string;
-
+export class UserEntity extends AbstractTenantEntity {
   @Column({ name: 'employee_code', unique: true }) // Mã nhân sự
   employeeCode: string;
 
@@ -33,10 +22,4 @@ export class UserEntity {
 
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

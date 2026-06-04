@@ -1,10 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { AbstractTenantEntity } from '@app/shared-types';
 
 export enum DepartmentType {
   TRUONG = 'TRUONG',
@@ -15,13 +10,7 @@ export enum DepartmentType {
 }
 
 @Entity('sys_departments')
-export class DepartmentEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ name: 'tenant_id', type: 'varchar', length: 100 })
-  tenantId: string; // ID của Đơn vị chủ quản (Ví dụ: dhvb)
-
+export class DepartmentEntity extends AbstractTenantEntity {
   @Column({ type: 'varchar', length: 100 })
   code: string;
 
@@ -36,10 +25,4 @@ export class DepartmentEntity {
 
   @Column({ type: 'text', nullable: true })
   description?: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 }
