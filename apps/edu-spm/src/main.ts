@@ -10,7 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create(EduSpmModule);
 
   // Security
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // Cho phép tải các script bên ngoài của Scalar UI
+    }),
+  );
   app.enableCors();
 
   // Validation & Transformation
@@ -24,6 +28,7 @@ async function bootstrap() {
     .setTitle('AQ Edu Smart - SPM API')
     .setDescription('Tài liệu API cho phân hệ Quản lý đối tác tuyển sinh')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 

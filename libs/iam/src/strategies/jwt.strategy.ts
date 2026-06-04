@@ -40,6 +40,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             if (err) {
               return done(err, undefined);
             }
+            if (!key) {
+              return done(new Error('Key is undefined'), undefined);
+            }
             const signingKey = key.getPublicKey();
             done(null, signingKey);
           });
