@@ -17,5 +17,21 @@ services:
       # Mount initialization script to auto-create multiple databases
       - ./init-scripts:/docker-entrypoint-initdb.d
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: aq_iam_keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: secretpassword
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:

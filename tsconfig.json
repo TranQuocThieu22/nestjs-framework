@@ -39,6 +39,12 @@
       ],
       "@app/shared-types/*": [
         "libs/shared-types/src/*"
+      ],
+      "@app/iam": [
+        "libs/iam/src"
+      ],
+      "@app/iam/*": [
+        "libs/iam/src/*"
       ]
     }
   }
