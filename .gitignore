@@ -115,3 +115,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# AI Agents config and submodules
+.agents/
+aq-antigravity-skills/
