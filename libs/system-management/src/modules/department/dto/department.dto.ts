@@ -24,7 +24,6 @@ export class CreateDepartmentDto {
   name: string;
 
   @ApiProperty({ description: 'Trực thuộc đơn vị (ID)', required: false })
-  @Transform(({ value }: { value: string }) => (value === '' ? null : value))
   @IsUUID()
   @IsOptional()
   parentId?: string;
