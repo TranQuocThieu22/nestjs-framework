@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  IsInt,
 } from 'class-validator';
 import { DepartmentType } from '../entities/department.entity';
 
@@ -43,4 +44,9 @@ export class CreateDepartmentDto {
   description?: string;
 }
 
-export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {}
+export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
+  @ApiProperty({ description: 'Phiên bản (Optimistic Lock)', example: 1 })
+  @IsInt()
+  @IsNotEmpty()
+  version: number;
+}

@@ -67,10 +67,15 @@ export abstract class AbstractBaseService<
           'Bắt buộc phải cung cấp version (Optimistic Lock) để cập nhật dữ liệu.',
         );
       }
-    } else {
-      // Nếu disable (LWW), xóa version khỏi dto để TypeORM dùng version trong DB
-      delete (dto as any).version;
+      if (entity.version !== (dto as any).version) {
+        throw new BadRequestException(
+          'Dữ liệu đã bị thay đổi bởi phiên bản khác. Vui lòng làm mới trang (refresh) để lấy dữ liệu mới nhất.',
+        );
+      }
     }
+    
+    // Xóa version khỏi dto để TypeORM tự động tăng (increment) version
+    delete (dto as any).version;
 
     Object.assign(entity, dto);
     return this.repository.save(entity);
