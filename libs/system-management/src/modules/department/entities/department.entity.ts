@@ -2,12 +2,20 @@ import { Entity, Column } from 'typeorm';
 import { AbstractTenantEntity } from '@app/shared-types';
 
 export enum DepartmentType {
-  TRUONG = 'TRUONG',
-  KHOA = 'KHOA',
-  PHONG = 'PHONG',
-  TRUNG_TAM = 'TRUNG_TAM',
-  BO_MON = 'BO_MON',
+  SCHOOL = 'SCHOOL',
+  FACULTY = 'FACULTY',
+  DEPARTMENT = 'DEPARTMENT',
+  CENTER = 'CENTER',
+  DIVISION = 'DIVISION',
 }
+
+export const DepartmentTypeDescription: Record<DepartmentType, string> = {
+  [DepartmentType.SCHOOL]: 'Trường',
+  [DepartmentType.FACULTY]: 'Khoa',
+  [DepartmentType.DEPARTMENT]: 'Phòng ban',
+  [DepartmentType.CENTER]: 'Trung tâm',
+  [DepartmentType.DIVISION]: 'Bộ môn',
+};
 
 @Entity('sys_departments')
 export class DepartmentEntity extends AbstractTenantEntity {
