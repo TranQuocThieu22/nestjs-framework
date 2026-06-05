@@ -17,13 +17,16 @@ export class AuditLogEntity {
   entityId: string;
 
   @Column({ name: 'action', type: 'varchar', length: 20 })
-  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'SOFT_DELETE' | 'RESTORE';
 
   @Column({ name: 'old_values', type: 'jsonb', nullable: true })
   oldValues: any;
 
   @Column({ name: 'new_values', type: 'jsonb', nullable: true })
   newValues: any;
+
+  @Column({ name: 'changed_fields', type: 'jsonb', nullable: true })
+  changedFields: string[];
 
   @Column({ name: 'user_id', type: 'uuid', nullable: true })
   userId: string;
