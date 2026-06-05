@@ -32,7 +32,7 @@ export class CreateDepartmentDto {
   @ApiProperty({
     description: 'Loại đơn vị',
     enum: DepartmentType,
-    example: DepartmentType.KHOA,
+    example: DepartmentType.FACULTY,
   })
   @IsEnum(DepartmentType)
   @IsNotEmpty()
