@@ -14,7 +14,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const status =
+    let status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -28,6 +28,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
           ? exceptionResponse
           : ((exceptionResponse as { message?: string | string[] }).message ??
             exception.message);
+    } else if (
+      exception instanceof Error &&
+      exception.name === 'OptimisticLockVersionMismatchError'
+    ) {
+      status = HttpStatus.CONFLICT;
+      message =
+        'Dữ liệu đã bị người khác chỉnh sửa trước đó. Vui lòng tải lại trang để lấy dữ liệu mới nhất!';
+    } else if (exception instanceof Error && status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      // Log the original error for debugging purposes if it's a 500
+      console.error(exception);
     }
 
     response.status(status).json({

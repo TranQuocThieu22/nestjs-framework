@@ -88,7 +88,12 @@ export class DepartmentService extends AbstractBaseService<
     return tree;
   }
 
-  async update(id: string, tenantId: string, updateDto: UpdateDepartmentDto) {
+  async update(
+    id: string,
+    tenantId: string,
+    updateDto: UpdateDepartmentDto,
+    options?: { disableOptimisticLocking?: boolean },
+  ) {
     const entity = await this.findOne(id, tenantId);
 
     // Kiểm tra trùng mã
@@ -106,7 +111,7 @@ export class DepartmentService extends AbstractBaseService<
       throw new BadRequestException('Không thể chọn đơn vị cha là chính nó');
     }
 
-    return super.update(id, tenantId, updateDto);
+    return super.update(id, tenantId, updateDto, options);
   }
 
   async softRemove(id: string, tenantId: string) {

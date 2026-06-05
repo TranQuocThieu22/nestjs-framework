@@ -5,7 +5,7 @@ import {
   FindOptionsOrder,
 } from 'typeorm';
 import { paginate, PaginateQuery, PaginateConfig } from 'nestjs-paginate';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AbstractTenantEntity } from '../entities/base.entity';
 
 export abstract class AbstractBaseService<
@@ -52,8 +52,26 @@ export abstract class AbstractBaseService<
     return entity;
   }
 
-  async update(id: string, tenantId: string, dto: UpdateDto): Promise<Entity> {
+  async update(
+    id: string,
+    tenantId: string,
+    dto: UpdateDto,
+    options?: { disableOptimisticLocking?: boolean },
+  ): Promise<Entity> {
     const entity = await this.findOne(id, tenantId);
+
+    // Optimistic Locking Check
+    if (!options?.disableOptimisticLocking) {
+      if ((dto as any).version === undefined) {
+        throw new BadRequestException(
+          'Bắt buộc phải cung cấp version (Optimistic Lock) để cập nhật dữ liệu.',
+        );
+      }
+    } else {
+      // Nếu disable (LWW), xóa version khỏi dto để TypeORM dùng version trong DB
+      delete (dto as any).version;
+    }
+
     Object.assign(entity, dto);
     return this.repository.save(entity);
   }

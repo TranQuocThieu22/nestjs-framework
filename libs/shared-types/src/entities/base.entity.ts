@@ -4,6 +4,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   Column,
+  VersionColumn,
 } from 'typeorm';
 
 export abstract class AbstractBaseEntity {
@@ -18,6 +19,9 @@ export abstract class AbstractBaseEntity {
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt?: Date;
+
+  @VersionColumn()
+  version: number;
 }
 
 export abstract class AbstractTenantEntity extends AbstractBaseEntity {
