@@ -13,3 +13,8 @@ export * from './entities/base.entity';
 // Base Classes
 export * from './base/base.service';
 export * from './base/base.controller';
+
+// Audit
+export * from './audit/audit.module';
+export * from './audit/audit-log.entity';
+export * from './audit/audit.subscriber';

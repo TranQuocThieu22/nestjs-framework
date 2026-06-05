@@ -5,11 +5,15 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { ActiveUserData } from '@app/shared-types';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private readonly clsService: ClsService) {
+    super();
+  }
+
   canActivate(context: ExecutionContext) {
-    // Bạn có thể tùy chỉnh logic mở rộng ở đây nếu cần
     return super.canActivate(context);
   }
 
@@ -26,6 +30,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         'Bạn chưa đăng nhập hoặc token không hợp lệ.',
       );
     }
+    this.clsService.set('user', user);
     return user;
   }
 }
