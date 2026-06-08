@@ -66,6 +66,14 @@ export class AuditSubscriber implements EntitySubscriberInterface {
     return changes;
   }
 
+  /**
+   * Cắt bỏ chữ "Entity" ở đuôi tên class để lưu vào DB cho gọn và đẹp.
+   */
+  private getCleanEntityName(targetName: any): string {
+    const name = String(targetName);
+    return name.endsWith('Entity') ? name.slice(0, -6) : name;
+  }
+
   async beforeInsert(event: InsertEvent<any>) {
     if (event.metadata.targetName === 'AuditLogEntity') return;
 
@@ -88,7 +96,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
-    log.entityName = event.metadata.targetName;
+    log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id;
     log.action = 'CREATE';
     
@@ -129,7 +137,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
-    log.entityName = event.metadata.targetName;
+    log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id || event.databaseEntity?.id;
     log.action = 'UPDATE';
     log.oldValues = cleanOld;
@@ -150,7 +158,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
-    log.entityName = event.metadata.targetName;
+    log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id || event.databaseEntity?.id;
     log.action = 'DELETE';
     log.oldValues = cleanOld;
@@ -170,7 +178,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
-    log.entityName = event.metadata.targetName;
+    log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id || event.databaseEntity?.id;
     log.action = 'SOFT_DELETE';
     log.oldValues = cleanOld;
@@ -190,7 +198,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
-    log.entityName = event.metadata.targetName;
+    log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id || event.databaseEntity?.id;
     log.action = 'RESTORE';
     log.newValues = cleanOld; // When restoring, the old values become the current valid values
