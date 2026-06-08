@@ -119,3 +119,6 @@ $RECYCLE.BIN/
 # AI Agents config and submodules
 .agents/
 aq-antigravity-skills/
+
+# Keycloak generated themes
+themes/keycloakify-starter/
