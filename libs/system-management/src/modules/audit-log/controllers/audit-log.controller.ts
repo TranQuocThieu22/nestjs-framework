@@ -1,10 +1,10 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { Paginate, PaginateQuery, ApiOkPaginatedResponse } from 'nestjs-paginate';
+import { Paginate, ApiPaginationQuery } from 'nestjs-paginate';
+import type { PaginateQuery } from 'nestjs-paginate';
 import { ClsService } from 'nestjs-cls';
 import { JwtAuthGuard } from '@app/iam';
-import { AuditLogService } from '../services/audit-log.service';
-import { AuditLogEntity } from '@app/shared-types';
+import { AuditLogService, auditLogPaginateConfig } from '../services/audit-log.service';
 
 @ApiTags('System Audit Logs')
 @ApiBearerAuth()
@@ -24,9 +24,7 @@ export class AuditLogController {
     summary: 'Lấy danh sách nhật ký hệ thống (Audit Logs)',
     description: 'Hỗ trợ phân trang, lọc theo entityId, action...',
   })
-  @ApiOkPaginatedResponse(AuditLogEntity, {
-    description: 'Danh sách nhật ký hệ thống',
-  })
+  @ApiPaginationQuery(auditLogPaginateConfig)
   async findAll(@Paginate() query: PaginateQuery) {
     const user = this.clsService.get('user');
     return this.auditLogService.findAllPaginated(user.tenantId, query);

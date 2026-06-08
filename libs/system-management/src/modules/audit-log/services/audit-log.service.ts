@@ -1,9 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { paginate, PaginateQuery, FilterOperator } from 'nestjs-paginate';
+import { paginate, PaginateQuery, FilterOperator, PaginateConfig } from 'nestjs-paginate';
 import { AuditLogEntity } from '@app/shared-types';
 import { UserEntity } from '../../account/entities/user.entity';
+
+export const auditLogPaginateConfig: PaginateConfig<AuditLogEntity> = {
+  sortableColumns: ['createdAt', 'action', 'entityName'],
+  nullSort: 'last',
+  defaultSortBy: [['createdAt', 'DESC']],
+  searchableColumns: ['action', 'entityName', 'userId'],
+  filterableColumns: {
+    entityId: [FilterOperator.EQ],
+    entityName: [FilterOperator.EQ],
+    action: [FilterOperator.EQ, FilterOperator.IN],
+    userId: [FilterOperator.EQ],
+  },
+};
 
 @Injectable()
 export class AuditLogService {
@@ -23,19 +36,6 @@ export class AuditLogService {
       )
       .where('log.tenantId = :tenantId', { tenantId });
 
-    return paginate(query, queryBuilder, {
-      sortableColumns: ['createdAt', 'action', 'entityName'],
-      nullSort: 'last',
-      defaultSortBy: [['createdAt', 'DESC']],
-      searchableColumns: ['action', 'entityName', 'userId'],
-      filterableColumns: {
-        entityId: [FilterOperator.EQ],
-        entityName: [FilterOperator.EQ],
-        action: [FilterOperator.EQ, FilterOperator.IN],
-        userId: [FilterOperator.EQ],
-      },
-      // select: ['id', 'action', 'entityName', 'entityId', 'createdAt', 'changedFields', 'oldValues', 'newValues'],
-      // Note: we let it select all log fields and the joined user fields
-    });
+    return paginate(query, queryBuilder, auditLogPaginateConfig);
   }
 }
