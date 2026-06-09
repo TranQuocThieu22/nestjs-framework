@@ -1,9 +1,13 @@
-import { Body, Controller, Get, Post, Delete, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Delete, Param, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { TenantProvisioningService } from './tenant-provisioning.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
+import { JwtAuthGuard } from '@app/iam/guards/jwt-auth.guard';
+import { MasterRealmGuard } from '@app/iam/guards/master-realm.guard';
 
 @ApiTags('Tenant Management')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, MasterRealmGuard)
 @Controller('tenant')
 export class TenantController {
   constructor(
