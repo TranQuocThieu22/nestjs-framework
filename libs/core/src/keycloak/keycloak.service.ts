@@ -97,4 +97,65 @@ export class KeycloakService {
       throw new InternalServerErrorException(kcError);
     }
   }
+  async createRealmAndClient(tenantId: string, tenantName: string) {
+    try {
+      // 1. Lấy admin client ở realm master
+      const client = await this.getAdminClient('master');
+
+      // 2. Tạo Realm mới
+      await client.realms.create({
+        realm: tenantId,
+        displayName: tenantName,
+        enabled: true,
+      });
+
+      // 3. Switch qua Realm mới để tạo Client
+      this.kcAdminClient.setConfig({
+        realmName: tenantId,
+      });
+
+      // 4. Tạo Client spm-client hỗ trợ Postman/Direct Access
+      await client.clients.create({
+        clientId: 'spm-client',
+        name: 'SPM System Client',
+        enabled: true,
+        publicClient: true,
+        directAccessGrantsEnabled: true,
+        standardFlowEnabled: true,
+        redirectUris: ['*'], // Cho phép test dễ dàng
+        webOrigins: ['*'],
+      });
+
+    } catch (error: unknown) {
+      const err = error as KeycloakError;
+      console.error(
+        'Keycloak Create Realm Error:',
+        err?.response?.data ?? error,
+      );
+      // Nếu lỗi là do realm đã tồn tại, ta có thể bỏ qua hoặc ném lỗi tiếp
+      const kcError =
+        err?.response?.data?.errorMessage ??
+        err?.message ??
+        'Lỗi không xác định khi tạo Realm';
+      throw new InternalServerErrorException(`Lỗi tạo Realm: ${kcError}`);
+    }
+  }
+
+  async disableRealm(tenantId: string) {
+    try {
+      const client = await this.getAdminClient('master');
+      await client.realms.update({ realm: tenantId }, { enabled: false });
+    } catch (error: any) {
+      console.warn(`Could not disable realm ${tenantId}: ${error.message}`);
+    }
+  }
+
+  async deleteRealm(tenantId: string) {
+    try {
+      const client = await this.getAdminClient('master');
+      await client.realms.del({ realm: tenantId });
+    } catch (error: any) {
+      console.warn(`Could not delete realm ${tenantId}: ${error.message}`);
+    }
+  }
 }

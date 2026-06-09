@@ -1,10 +1,11 @@
-import { Injectable, Logger, ConflictException } from '@nestjs/common';
+import { Injectable, Logger, ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TenantEntity } from './entities/tenant.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
+import { KeycloakService } from '../keycloak/keycloak.service';
 
 @Injectable()
 export class TenantProvisioningService {
@@ -14,6 +15,7 @@ export class TenantProvisioningService {
     private readonly configService: ConfigService,
     @InjectRepository(TenantEntity)
     private readonly tenantRepo: Repository<TenantEntity>,
+    private readonly keycloakService: KeycloakService,
   ) {}
 
   async findAll() {
@@ -105,6 +107,82 @@ export class TenantProvisioningService {
     const newTenant = this.tenantRepo.create(dto);
     const savedTenant = await this.tenantRepo.save(newTenant);
     this.logger.log(`Tenant metadata for ${tenantId} saved to Master DB.`);
+
+    // 4. Tạo Realm trên Keycloak
+    try {
+      this.logger.log(`Provisioning Keycloak Realm for tenant ${tenantId}...`);
+      await this.keycloakService.createRealmAndClient(tenantId, dto.name);
+      this.logger.log(`Keycloak Realm ${tenantId} created successfully.`);
+    } catch (error: any) {
+      this.logger.error(`Failed to create Keycloak Realm for ${tenantId}: ${error.message}`);
+      // Không throw error để tránh rollback việc tạo Database nếu Keycloak lỗi (hoặc đã tồn tại)
+    }
+
     return savedTenant;
+  }
+
+  /**
+   * Xóa một Tenant khỏi hệ thống.
+   * @param force Nếu true, xóa vật lý Database và Realm. Nếu false, chỉ soft delete.
+   */
+  async deleteTenant(code: string, force: boolean = false): Promise<void> {
+    const tenant = await this.tenantRepo.findOne({ where: { code } });
+    if (!tenant) {
+      throw new NotFoundException(`Tenant với mã ${code} không tồn tại.`);
+    }
+
+    const dbName = `db_${code}`;
+
+    if (force) {
+      this.logger.log(`Performing HARD delete for tenant ${code}...`);
+      
+      // 1. Xóa Realm trên Keycloak
+      await this.keycloakService.deleteRealm(code);
+      
+      // 2. Xóa Database vật lý trên Postgres
+      const client = new Client({
+        host: this.configService.get<string>('DB_HOST')!,
+        port: this.configService.get<number>('DB_PORT', 5432),
+        user: this.configService.get<string>('DB_USERNAME')!,
+        password: this.configService.get<string>('DB_PASSWORD')!,
+        database: 'postgres',
+      });
+
+      try {
+        await client.connect();
+        // Ngắt kết nối các session đang mở vào DB này
+        await client.query(`
+          SELECT pg_terminate_backend(pg_stat_activity.pid)
+          FROM pg_stat_activity
+          WHERE pg_stat_activity.datname = $1
+            AND pid <> pg_backend_pid();
+        `, [dbName]);
+
+        // Xóa Database
+        await client.query(`DROP DATABASE IF EXISTS ${dbName}`);
+        this.logger.log(`Database ${dbName} dropped successfully.`);
+      } catch (error: any) {
+        this.logger.error(`Error dropping database ${dbName}: ${error.message}`);
+        // Có thể tiếp tục xóa Master Record dù drop DB lỗi (ví dụ DB không tồn tại)
+      } finally {
+        await client.end();
+      }
+
+      // 3. Hard Delete khỏi Master DB
+      await this.tenantRepo.delete(tenant.id);
+      this.logger.log(`Tenant ${code} hard deleted from Master DB.`);
+    } else {
+      this.logger.log(`Performing SOFT delete for tenant ${code}...`);
+      
+      // 1. Vô hiệu hóa Realm trên Keycloak
+      await this.keycloakService.disableRealm(code);
+      
+      // 2. Cập nhật trạng thái và Soft Delete trong Master DB
+      tenant.status = 'inactive';
+      await this.tenantRepo.save(tenant);
+      await this.tenantRepo.softRemove(tenant);
+      
+      this.logger.log(`Tenant ${code} soft deleted successfully.`);
+    }
   }
 }
