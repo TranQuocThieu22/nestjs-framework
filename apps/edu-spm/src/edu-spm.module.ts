@@ -21,7 +21,7 @@ import { IamModule } from '@app/iam';
         PORT: Joi.number().default(3002),
       }),
     }),
-    DatabaseModule.forApp('SPM_DB_NAME'),
+    DatabaseModule.forApp('spm'),
     CoreModule,
     SystemManagementModule,
     ActivityModule,

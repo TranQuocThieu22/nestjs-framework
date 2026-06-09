@@ -1,32 +1,29 @@
-import { DynamicModule } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TenantConnectionService, APP_NAME_TOKEN } from '../tenant/tenant-connection.service';
 
 /**
  * Cấu hình kết nối Postgres dùng chung cho mọi app trong monorepo.
- *
- * Mỗi app có 1 database riêng; chỉ khác nhau ở tên DB nên truyền vào khóa biến
- * môi trường tương ứng.
+ * Hỗ trợ Multi-tenant động dựa trên Request context (tenantId).
  *
  * @example
- *   imports: [DatabaseModule.forApp('SPM_DB_NAME')]
+ *   imports: [DatabaseModule.forApp('admission')]
  */
+@Global()
+@Module({})
 export class DatabaseModule {
-  static forApp(dbNameEnvKey: string): DynamicModule {
-    return TypeOrmModule.forRootAsync({
+  static forApp(appName: string): DynamicModule {
+    return {
+      module: DatabaseModule,
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT', 5432),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>(dbNameEnvKey),
-        autoLoadEntities: true,
-        // Chỉ bật synchronize ngoài production. Production phải dùng migrations.
-        synchronize: configService.get<string>('NODE_ENV') !== 'production',
-      }),
-    });
+      providers: [
+        {
+          provide: APP_NAME_TOKEN,
+          useValue: appName,
+        },
+        TenantConnectionService,
+      ],
+      exports: [TenantConnectionService],
+    };
   }
 }

@@ -8,7 +8,7 @@ import { HealthController } from './health/health.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule.forApp('ADMISSION_DB_NAME'),
+    DatabaseModule.forApp('admission'),
     CoreModule,
     IamModule,
     SystemManagementModule,

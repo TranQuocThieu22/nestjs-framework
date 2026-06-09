@@ -1,38 +1,40 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { KeycloakService } from '@app/core';
+import { TenantConnectionService } from '@app/core';
 import type { KeycloakError } from '@app/core';
 
 @Injectable()
 export class AccountService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
-    private keycloakService: KeycloakService,
+    private readonly tenantConnectionService: TenantConnectionService,
+    private readonly keycloakService: KeycloakService,
   ) {}
+
+  private async getUserRepository() {
+    return this.tenantConnectionService.getRepository(UserEntity);
+  }
 
   async createUser(tenantId: string, createUserDto: CreateUserDto) {
     try {
-      // 1. Tạo User trên Keycloak trước (Tạo username, email, mật khẩu mặc định)
-      // Tách fullname thành firstName, lastName tạm thời
+      // 1. Tạo User trên Keycloak trước
       const nameParts = createUserDto.fullName.split(' ');
       const lastName = nameParts.pop() || '';
       const firstName = nameParts.join(' ') || createUserDto.fullName;
 
       const keycloakUserId = await this.keycloakService.createUser(
         tenantId,
-        createUserDto.employeeCode, // Dùng employeeCode làm username đăng nhập
+        createUserDto.employeeCode,
         createUserDto.email,
         firstName,
         lastName,
       );
 
       // 2. Lưu các trường nghiệp vụ tuỳ chỉnh vào PostgreSQL
-      const userEntity = this.userRepository.create({
-        id: keycloakUserId, // Bắt buộc trùng ID với Keycloak
+      const repo = await this.getUserRepository();
+      const userEntity = repo.create({
+        id: keycloakUserId,
         tenantId: tenantId,
         employeeCode: createUserDto.employeeCode,
         fullName: createUserDto.fullName,
@@ -40,10 +42,7 @@ export class AccountService {
         departmentId: createUserDto.departmentId,
       });
 
-      const savedUser = await this.userRepository.save(userEntity);
-
-      // 3. TODO: Nếu có roleCode, gọi IamService để gắn quyền (UserPermissionEntity)
-
+      const savedUser = await repo.save(userEntity);
       return savedUser;
     } catch (error: unknown) {
       const err = error as KeycloakError;
@@ -57,7 +56,8 @@ export class AccountService {
   }
 
   async getAccounts(tenantId: string) {
-    return this.userRepository.find({
+    const repo = await this.getUserRepository();
+    return repo.find({
       where: { tenantId },
       order: { createdAt: 'DESC' },
     });
