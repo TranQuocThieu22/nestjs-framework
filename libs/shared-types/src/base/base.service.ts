@@ -14,28 +14,32 @@ export abstract class AbstractBaseService<
   UpdateDto extends DeepPartial<Entity> = DeepPartial<Entity>,
 > {
   constructor(
-    protected readonly repository: Repository<Entity>,
     protected readonly paginateConfig: PaginateConfig<Entity>,
     protected readonly entityName: string = 'Dữ liệu',
   ) {}
 
+  protected abstract getRepository(): Promise<Repository<Entity>>;
+
   async create(tenantId: string, dto: CreateDto): Promise<Entity> {
-    const entity = this.repository.create({
+    const repo = await this.getRepository();
+    const entity = repo.create({
       ...dto,
       tenantId,
     } as unknown as DeepPartial<Entity>);
-    return this.repository.save(entity);
+    return repo.save(entity);
   }
 
   async findAllFlat(tenantId: string): Promise<Entity[]> {
-    return this.repository.find({
+    const repo = await this.getRepository();
+    return repo.find({
       where: { tenantId } as unknown as FindOptionsWhere<Entity>,
-      order: { createdAt: 'ASC' } as FindOptionsOrder<Entity>,
+      order: { createdAt: 'ASC' } as unknown as FindOptionsOrder<Entity>,
     });
   }
 
   async findAllPaginated(tenantId: string, query: PaginateQuery) {
-    const queryBuilder = this.repository
+    const repo = await this.getRepository();
+    const queryBuilder = repo
       .createQueryBuilder('entity')
       .where('entity.tenantId = :tenantId', { tenantId });
 
@@ -43,7 +47,8 @@ export abstract class AbstractBaseService<
   }
 
   async findOne(id: string, tenantId: string): Promise<Entity> {
-    const entity = await this.repository.findOne({
+    const repo = await this.getRepository();
+    const entity = await repo.findOne({
       where: { id, tenantId } as unknown as FindOptionsWhere<Entity>,
     });
     if (!entity) {
@@ -73,12 +78,13 @@ export abstract class AbstractBaseService<
         );
       }
     }
-    
+
     // Xóa version khỏi dto để TypeORM tự động tăng (increment) version
     delete (dto as any).version;
 
     Object.assign(entity, dto);
-    return this.repository.save(entity);
+    const repo = await this.getRepository();
+    return repo.save(entity);
   }
 
   async softRemove(
@@ -86,7 +92,8 @@ export abstract class AbstractBaseService<
     tenantId: string,
   ): Promise<{ success: boolean; message: string }> {
     const entity = await this.findOne(id, tenantId);
-    await this.repository.softRemove(entity);
+    const repo = await this.getRepository();
+    await repo.softRemove(entity);
     return { success: true, message: 'Đã xóa thành công' };
   }
 }

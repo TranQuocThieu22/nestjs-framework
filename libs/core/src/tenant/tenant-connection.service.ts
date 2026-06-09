@@ -19,7 +19,7 @@ export class TenantConnectionService {
    * Lấy DataSource hiện tại dựa trên tenantId và appName.
    */
   async getDataSource(): Promise<DataSource> {
-    const tenantId = this.cls.get('tenantId');
+    const tenantId = this.cls.get<string>('tenantId');
     if (!tenantId) {
       throw new Error('Tenant ID is missing from request context.');
     }
@@ -27,7 +27,8 @@ export class TenantConnectionService {
     const dataSourceKey = `${tenantId}_${this.appName}`;
 
     if (TenantConnectionService.dataSources.has(dataSourceKey)) {
-      const existingDataSource = TenantConnectionService.dataSources.get(dataSourceKey);
+      const existingDataSource =
+        TenantConnectionService.dataSources.get(dataSourceKey);
       if (existingDataSource?.isInitialized) {
         return existingDataSource;
       }
@@ -35,16 +36,19 @@ export class TenantConnectionService {
 
     // Nếu chưa có, tiến hành tạo mới connection
     const dbName = `db_${tenantId}`;
-    
+
     const dataSource = new DataSource({
       type: 'postgres',
-      host: this.configService.get<string>('DB_HOST'),
+      host: this.configService.get<string>('DB_HOST')!,
       port: this.configService.get<number>('DB_PORT', 5432),
-      username: this.configService.get<string>('DB_USERNAME'),
-      password: this.configService.get<string>('DB_PASSWORD'),
+      username: this.configService.get<string>('DB_USERNAME')!,
+      password: this.configService.get<string>('DB_PASSWORD')!,
       database: dbName,
       schema: this.appName, // Cách 1: schema per app
-      entities: [__dirname + '/../../**/*.entity{.ts,.js}', __dirname + '/../../../**/*.entity{.ts,.js}'],
+      entities: [
+        __dirname + '/../../**/*.entity{.ts,.js}',
+        __dirname + '/../../../**/*.entity{.ts,.js}',
+      ],
       synchronize: this.configService.get<string>('NODE_ENV') !== 'production', // Chú ý: trong production nên false
     });
 

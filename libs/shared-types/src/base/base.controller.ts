@@ -1,4 +1,13 @@
-import { Get, Post, Body, Put, Param, Delete, Type, ValidationPipe } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Type,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiOperation, ApiBody } from '@nestjs/swagger';
 import { Paginate, ApiPaginationQuery, PaginateConfig } from 'nestjs-paginate';
 import type { PaginateQuery } from 'nestjs-paginate';
@@ -31,7 +40,14 @@ export function BaseControllerFactory<
     @ApiBody({ type: createDtoClass })
     create(
       @ActiveUser() user: ActiveUserData,
-      @Body(new ValidationPipe({ transform: true, whitelist: true, expectedType: createDtoClass })) createDto: CreateDto,
+      @Body(
+        new ValidationPipe({
+          transform: true,
+          whitelist: true,
+          expectedType: createDtoClass,
+        }),
+      )
+      createDto: CreateDto,
     ) {
       return this.baseService.create(user.tenantId, createDto);
     }
@@ -64,7 +80,14 @@ export function BaseControllerFactory<
     update(
       @ActiveUser() user: ActiveUserData,
       @Param('id') id: string,
-      @Body(new ValidationPipe({ transform: true, whitelist: true, expectedType: updateDtoClass })) updateDto: UpdateDto,
+      @Body(
+        new ValidationPipe({
+          transform: true,
+          whitelist: true,
+          expectedType: updateDtoClass,
+        }),
+      )
+      updateDto: UpdateDto,
     ) {
       return this.baseService.update(id, user.tenantId, updateDto);
     }

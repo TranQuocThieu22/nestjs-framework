@@ -20,13 +20,13 @@ export class TenantMiddleware implements NestMiddleware {
           const payloadBase64 = token.split('.')[1];
           const payloadDecoded = JSON.parse(
             Buffer.from(payloadBase64, 'base64').toString(),
-          );
+          ) as { iss?: string };
           if (payloadDecoded && payloadDecoded.iss) {
             const issuerSegments = payloadDecoded.iss.split('/');
             tenantId = issuerSegments[issuerSegments.length - 1];
           }
         }
-      } catch (error) {
+      } catch {
         // Bỏ qua lỗi parse JWT ở đây, JWT Guard sẽ xử lý sau nếu route đó yêu cầu đăng nhập
       }
     }

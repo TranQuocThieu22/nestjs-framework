@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { paginate, PaginateQuery, FilterOperator, PaginateConfig } from 'nestjs-paginate';
+import {
+  paginate,
+  PaginateQuery,
+  FilterOperator,
+  PaginateConfig,
+} from 'nestjs-paginate';
 import { AuditLogEntity } from '@app/shared-types';
 import { UserEntity } from '../../account/entities/user.entity';
+
+import { TenantConnectionService } from '@app/core';
 
 export const auditLogPaginateConfig: PaginateConfig<AuditLogEntity> = {
   sortableColumns: ['createdAt', 'action', 'entityName'],
@@ -21,19 +26,15 @@ export const auditLogPaginateConfig: PaginateConfig<AuditLogEntity> = {
 @Injectable()
 export class AuditLogService {
   constructor(
-    @InjectRepository(AuditLogEntity)
-    private readonly auditLogRepo: Repository<AuditLogEntity>,
+    private readonly tenantConnectionService: TenantConnectionService,
   ) {}
 
   async findAllPaginated(tenantId: string, query: PaginateQuery) {
-    const queryBuilder = this.auditLogRepo
+    const repo =
+      await this.tenantConnectionService.getRepository(AuditLogEntity);
+    const queryBuilder = repo
       .createQueryBuilder('log')
-      .leftJoinAndMapOne(
-        'log.user',
-        UserEntity,
-        'user',
-        'user.id = log.userId',
-      )
+      .leftJoinAndMapOne('log.user', UserEntity, 'user', 'user.id = log.userId')
       .where('log.tenantId = :tenantId', { tenantId });
 
     return paginate(query, queryBuilder, auditLogPaginateConfig);

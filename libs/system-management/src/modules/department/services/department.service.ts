@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DepartmentEntity } from '../entities/department.entity';
 import {
@@ -8,6 +7,7 @@ import {
 } from '../dto/department.dto';
 import { FilterOperator } from 'nestjs-paginate';
 import { AbstractBaseService } from '@app/shared-types';
+import { TenantConnectionService } from '@app/core';
 
 /** Đơn vị kèm danh sách đơn vị con (dạng cây phân cấp) */
 export interface DepartmentTreeNode extends DepartmentEntity {
@@ -21,11 +21,9 @@ export class DepartmentService extends AbstractBaseService<
   UpdateDepartmentDto
 > {
   constructor(
-    @InjectRepository(DepartmentEntity)
-    departmentRepo: Repository<DepartmentEntity>,
+    private readonly tenantConnectionService: TenantConnectionService,
   ) {
     super(
-      departmentRepo,
       {
         sortableColumns: ['createdAt', 'name', 'code'],
         nullSort: 'last',
@@ -40,9 +38,14 @@ export class DepartmentService extends AbstractBaseService<
     );
   }
 
+  protected async getRepository(): Promise<Repository<DepartmentEntity>> {
+    return this.tenantConnectionService.getRepository(DepartmentEntity);
+  }
+
   async create(tenantId: string, createDto: CreateDepartmentDto) {
+    const repo = await this.getRepository();
     // Kiểm tra trùng mã (code) trong cùng 1 trường ĐH (tenantId)
-    const exists = await this.repository.findOne({
+    const exists = await repo.findOne({
       where: { tenantId, code: createDto.code },
     });
     if (exists) {
@@ -51,7 +54,7 @@ export class DepartmentService extends AbstractBaseService<
 
     // Nếu có parentId, kiểm tra parent có tồn tại không
     if (createDto.parentId) {
-      const parentExists = await this.repository.findOne({
+      const parentExists = await repo.findOne({
         where: { id: createDto.parentId, tenantId },
       });
       if (!parentExists) {
@@ -95,10 +98,11 @@ export class DepartmentService extends AbstractBaseService<
     options?: { disableOptimisticLocking?: boolean },
   ) {
     const entity = await this.findOne(id, tenantId);
+    const repo = await this.getRepository();
 
     // Kiểm tra trùng mã
     if (updateDto.code && updateDto.code !== entity.code) {
-      const exists = await this.repository.findOne({
+      const exists = await repo.findOne({
         where: { tenantId, code: updateDto.code },
       });
       if (exists) {
@@ -115,8 +119,9 @@ export class DepartmentService extends AbstractBaseService<
   }
 
   async softRemove(id: string, tenantId: string) {
+    const repo = await this.getRepository();
     // Kiểm tra xem có đơn vị con không
-    const children = await this.repository.count({
+    const children = await repo.count({
       where: { parentId: id, tenantId },
     });
     if (children > 0) {

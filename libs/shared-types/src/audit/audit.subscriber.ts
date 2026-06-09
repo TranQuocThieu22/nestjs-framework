@@ -79,9 +79,13 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     if (user && event.entity) {
-      const hasCreatedBy = event.metadata.columns.some(col => col.propertyName === 'createdBy');
-      const hasUpdatedBy = event.metadata.columns.some(col => col.propertyName === 'updatedBy');
-      
+      const hasCreatedBy = event.metadata.columns.some(
+        (col) => col.propertyName === 'createdBy',
+      );
+      const hasUpdatedBy = event.metadata.columns.some(
+        (col) => col.propertyName === 'updatedBy',
+      );
+
       if (hasCreatedBy) {
         event.entity.createdBy = user.userId;
       }
@@ -99,11 +103,11 @@ export class AuditSubscriber implements EntitySubscriberInterface {
     log.entityName = this.getCleanEntityName(event.metadata.targetName);
     log.entityId = event.entity?.id;
     log.action = 'CREATE';
-    
+
     const cleanNew = this.scrubSystemFields(event.entity);
     log.newValues = cleanNew;
     log.changedFields = Object.keys(cleanNew || {});
-    
+
     log.userId = user?.userId || null;
     log.tenantId = user?.tenantId || null;
 
@@ -117,7 +121,9 @@ export class AuditSubscriber implements EntitySubscriberInterface {
 
     const user = this.getActiveUser();
     if (user && event.entity) {
-      const hasUpdatedBy = event.metadata.columns.some(col => col.propertyName === 'updatedBy');
+      const hasUpdatedBy = event.metadata.columns.some(
+        (col) => col.propertyName === 'updatedBy',
+      );
       if (hasUpdatedBy) {
         event.entity.updatedBy = user.userId;
       }
@@ -154,7 +160,9 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   async afterRemove(event: RemoveEvent<any>) {
     if (event.metadata.targetName === 'AuditLogEntity') return;
 
-    const cleanOld = this.scrubSystemFields(event.entity || event.databaseEntity);
+    const cleanOld = this.scrubSystemFields(
+      event.entity || event.databaseEntity,
+    );
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
@@ -174,7 +182,9 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   async afterSoftRemove(event: SoftRemoveEvent<any>) {
     if (event.metadata.targetName === 'AuditLogEntity') return;
 
-    const cleanOld = this.scrubSystemFields(event.entity || event.databaseEntity);
+    const cleanOld = this.scrubSystemFields(
+      event.entity || event.databaseEntity,
+    );
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();
@@ -194,7 +204,9 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   async afterRecover(event: RecoverEvent<any>) {
     if (event.metadata.targetName === 'AuditLogEntity') return;
 
-    const cleanOld = this.scrubSystemFields(event.entity || event.databaseEntity);
+    const cleanOld = this.scrubSystemFields(
+      event.entity || event.databaseEntity,
+    );
 
     const user = this.getActiveUser();
     const log = new AuditLogEntity();

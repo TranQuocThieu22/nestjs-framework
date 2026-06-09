@@ -4,7 +4,10 @@ import { Paginate, ApiPaginationQuery } from 'nestjs-paginate';
 import type { PaginateQuery } from 'nestjs-paginate';
 import { ClsService } from 'nestjs-cls';
 import { JwtAuthGuard } from '@app/iam';
-import { AuditLogService, auditLogPaginateConfig } from '../services/audit-log.service';
+import {
+  AuditLogService,
+  auditLogPaginateConfig,
+} from '../services/audit-log.service';
 
 @ApiTags('System Audit Logs')
 @ApiBearerAuth()

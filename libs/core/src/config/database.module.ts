@@ -1,6 +1,9 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TenantConnectionService, APP_NAME_TOKEN } from '../tenant/tenant-connection.service';
+import {
+  TenantConnectionService,
+  APP_NAME_TOKEN,
+} from '../tenant/tenant-connection.service';
 
 /**
  * Cấu hình kết nối Postgres dùng chung cho mọi app trong monorepo.
