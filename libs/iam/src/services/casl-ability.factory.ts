@@ -10,24 +10,26 @@ import { RolePermissionEntity } from '../entities/role-permission.entity';
 import { UserPermissionEntity } from '../entities/user-permission.entity';
 import type { ActiveUserData } from '@app/shared-types';
 
+import { TenantConnectionService } from '@app/core/tenant/tenant-connection.service';
+
 export type AppAbility = MongoAbility;
 
 @Injectable()
 export class CaslAbilityFactory {
   constructor(
-    @InjectRepository(RolePermissionEntity)
-    private readonly rolePermissionRepo: Repository<RolePermissionEntity>,
-    @InjectRepository(UserPermissionEntity)
-    private readonly userPermissionRepo: Repository<UserPermissionEntity>,
+    private readonly tenantConnectionService: TenantConnectionService,
   ) {}
 
   async createForUser(user: ActiveUserData): Promise<AppAbility> {
     const { can, cannot, build } = new AbilityBuilder(createMongoAbility);
+    
+    const rolePermissionRepo = await this.tenantConnectionService.getRepository(RolePermissionEntity);
+    const userPermissionRepo = await this.tenantConnectionService.getRepository(UserPermissionEntity);
 
     // 1. Tải quyền hạn từ Nhóm (kết hợp với tenantId để chống lộ dữ liệu chéo)
     // Giả sử user.roles chứa mảng mã Role (e.g. ['admin', 'lecturer'])
     if (user.roles && user.roles.length > 0) {
-      const rolePermissions = await this.rolePermissionRepo.find({
+      const rolePermissions = await rolePermissionRepo.find({
         where: {
           tenantId: user.tenantId, // BẮT BUỘC để phân lập dữ liệu SaaS
           // Trong thực tế, bạn cần query RoleEntity theo user.roles
@@ -43,7 +45,7 @@ export class CaslAbilityFactory {
     }
 
     // 2. Tải quyền hạn Cá nhân ghi đè
-    const userPermissions = await this.userPermissionRepo.find({
+    const userPermissions = await userPermissionRepo.find({
       where: {
         userId: user.userId,
         tenantId: user.tenantId, // BẮT BUỘC

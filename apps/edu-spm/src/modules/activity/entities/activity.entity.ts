@@ -1,16 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-} from 'typeorm';
-import { ActivityStatus } from '@app/shared-types';
+import { Entity, Column } from 'typeorm';
+import { ActivityStatus, AbstractTenantEntity } from '@app/shared-types';
 
 @Entity('activities')
-export class ActivityEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class ActivityEntity extends AbstractTenantEntity {
   @Column({ unique: true })
   code: string;
 
@@ -26,7 +18,4 @@ export class ActivityEntity {
     default: ActivityStatus.PENDING,
   })
   status: ActivityStatus;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

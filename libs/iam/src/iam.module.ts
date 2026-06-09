@@ -12,16 +12,7 @@ import { CaslAbilityFactory } from './services/casl-ability.factory';
 import { PoliciesGuard } from './guards/policies.guard';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ActionEntity,
-      ModuleEntity,
-      RolePermissionEntity,
-      RoleEntity,
-      UserPermissionEntity,
-    ]),
-  ],
   providers: [JwtStrategy, JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
-  exports: [TypeOrmModule, JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
+  exports: [JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
 })
 export class IamModule {}

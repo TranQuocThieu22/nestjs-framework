@@ -6,7 +6,7 @@ import { AccountController } from './controllers/account.controller';
 import { AccountService } from './services/account.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), IamModule],
+  imports: [IamModule],
   controllers: [AccountController],
   providers: [AccountService],
   exports: [AccountService],

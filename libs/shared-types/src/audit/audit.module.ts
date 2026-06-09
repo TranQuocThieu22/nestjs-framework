@@ -5,8 +5,7 @@ import { AuditSubscriber } from './audit.subscriber';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([AuditLogEntity])],
   providers: [AuditSubscriber],
-  exports: [AuditSubscriber, TypeOrmModule],
+  exports: [AuditSubscriber],
 })
 export class AuditModule {}

@@ -1,5 +1,5 @@
 import { PageOptionsDto } from '@app/shared-types';
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Headers } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActivityService } from '../services/activity.service';
@@ -11,13 +11,19 @@ export class ActivityController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new community activity' })
-  async create(@Body() dto: CreateActivityDto) {
-    return this.activityService.createActivity(dto);
+  async create(
+    @Headers('x-tenant-id') tenantId: string,
+    @Body() dto: CreateActivityDto,
+  ) {
+    return this.activityService.createActivity(tenantId, dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all activities with pagination' })
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
-    return this.activityService.getAllActivities(pageOptionsDto);
+  async findAll(
+    @Headers('x-tenant-id') tenantId: string,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ) {
+    return this.activityService.getAllActivities(tenantId, pageOptionsDto);
   }
 }

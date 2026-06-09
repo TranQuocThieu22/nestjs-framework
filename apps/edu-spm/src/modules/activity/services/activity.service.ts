@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ActivityRepository } from '../repositories/activity.repository';
+import { Repository } from 'typeorm';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActivityEntity } from '../entities/activity.entity';
 import {
@@ -7,27 +7,44 @@ import {
   PageDto,
   PageMetaDto,
   PageOptionsDto,
+  AbstractBaseService
 } from '@app/shared-types';
+import { TenantConnectionService } from '@app/core/tenant/tenant-connection.service';
 
 @Injectable()
-export class ActivityService {
+export class ActivityService extends AbstractBaseService<ActivityEntity> {
   private readonly logger = new Logger(ActivityService.name);
 
-  constructor(private readonly activityRepository: ActivityRepository) {}
+  constructor(private readonly tenantConnectionService: TenantConnectionService) {
+    super(
+      {
+        sortableColumns: ['createdAt', 'code', 'name'],
+        defaultSortBy: [['createdAt', 'DESC']],
+        searchableColumns: ['code', 'name', 'semester'],
+      },
+      'Hoạt động'
+    );
+  }
 
-  async createActivity(dto: CreateActivityDto): Promise<ActivityEntity> {
+  protected async getRepository(): Promise<Repository<ActivityEntity>> {
+    return this.tenantConnectionService.getRepository(ActivityEntity);
+  }
+
+  async createActivity(tenantId: string, dto: CreateActivityDto): Promise<ActivityEntity> {
     this.logger.log(`Creating activity: ${dto.code}`);
-    const activity = this.activityRepository.create({
+    return super.create(tenantId, {
       ...dto,
       status: ActivityStatus.PENDING,
     });
-    return this.activityRepository.save(activity);
   }
 
   async getAllActivities(
+    tenantId: string,
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ActivityEntity>> {
-    const queryBuilder = this.activityRepository.createQueryBuilder('activity');
+    const repo = await this.getRepository();
+    const queryBuilder = repo.createQueryBuilder('activity');
+    queryBuilder.where('activity.tenantId = :tenantId', { tenantId });
 
     queryBuilder
       .orderBy('activity.createdAt', pageOptionsDto.order)
