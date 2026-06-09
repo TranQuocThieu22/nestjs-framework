@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { ClsService } from 'nestjs-cls';
 import { DataSource, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
 
+import { AuditSubscriber } from '@app/shared-types/audit/audit.subscriber';
+
 export const APP_NAME_TOKEN = 'APP_NAME';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -13,6 +15,7 @@ export class TenantConnectionService {
     private readonly cls: ClsService,
     private readonly configService: ConfigService,
     @Inject(APP_NAME_TOKEN) private readonly appName: string,
+    private readonly auditSubscriber: AuditSubscriber,
   ) {}
 
   /**
@@ -52,6 +55,7 @@ export class TenantConnectionService {
       synchronize: this.configService.get<string>('NODE_ENV') !== 'production', // Chú ý: trong production nên false
     });
 
+    dataSource.subscribers.push(this.auditSubscriber);
     await dataSource.initialize();
     TenantConnectionService.dataSources.set(dataSourceKey, dataSource);
 

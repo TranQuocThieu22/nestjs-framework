@@ -25,11 +25,8 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   ];
 
   constructor(
-    private readonly dataSource: DataSource,
     private readonly clsService: ClsService,
-  ) {
-    this.dataSource.subscribers.push(this);
-  }
+  ) {}
 
   private getActiveUser(): { userId?: string; tenantId?: string } | undefined {
     return this.clsService.get<{ userId?: string; tenantId?: string }>('user');
