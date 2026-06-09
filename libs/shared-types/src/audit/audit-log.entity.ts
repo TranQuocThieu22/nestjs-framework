@@ -20,19 +20,19 @@ export class AuditLogEntity {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'SOFT_DELETE' | 'RESTORE';
 
   @Column({ name: 'old_values', type: 'jsonb', nullable: true })
-  oldValues: any;
+  oldValues: Record<string, unknown> | null;
 
   @Column({ name: 'new_values', type: 'jsonb', nullable: true })
-  newValues: any;
+  newValues: Record<string, unknown> | null;
 
   @Column({ name: 'changed_fields', type: 'jsonb', nullable: true })
-  changedFields: string[];
+  changedFields: string[] | null;
 
   @Column({ name: 'user_id', type: 'uuid', nullable: true })
-  userId: string;
+  userId: string | null;
 
   @Column({ name: 'tenant_id', type: 'varchar', length: 100, nullable: true })
-  tenantId: string;
+  tenantId: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -37,7 +37,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         'Dữ liệu đã bị người khác chỉnh sửa trước đó. Vui lòng tải lại trang để lấy dữ liệu mới nhất!';
     } else if (
       exception instanceof Error &&
-      status === (HttpStatus.INTERNAL_SERVER_ERROR as number)
+      status === HttpStatus.INTERNAL_SERVER_ERROR
     ) {
       // Log the original error for debugging purposes if it's a 500
       console.error(exception);

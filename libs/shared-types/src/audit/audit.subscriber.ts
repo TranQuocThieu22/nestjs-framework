@@ -31,14 +31,16 @@ export class AuditSubscriber implements EntitySubscriberInterface {
     this.dataSource.subscribers.push(this);
   }
 
-  private getActiveUser() {
-    return this.clsService.get('user');
+  private getActiveUser(): { userId?: string; tenantId?: string } | undefined {
+    return this.clsService.get<{ userId?: string; tenantId?: string }>('user');
   }
 
   /**
    * Lọc bỏ các trường hệ thống để Frontend không bị rác
    */
-  private scrubSystemFields(entity: any): any {
+  private scrubSystemFields(
+    entity: Record<string, unknown> | undefined | null,
+  ): Record<string, unknown> | null {
     if (!entity) return null;
     const clean = { ...entity };
     for (const field of this.systemFields) {
@@ -50,7 +52,10 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   /**
    * So sánh và trả về danh sách các trường bị thay đổi
    */
-  private getChangedFields(oldData: any, newData: any): string[] {
+  private getChangedFields(
+    oldData: Record<string, unknown> | undefined | null,
+    newData: Record<string, unknown> | undefined | null,
+  ): string[] {
     const changes: string[] = [];
     if (!oldData || !newData) return changes;
 
@@ -69,7 +74,7 @@ export class AuditSubscriber implements EntitySubscriberInterface {
   /**
    * Cắt bỏ chữ "Entity" ở đuôi tên class để lưu vào DB cho gọn và đẹp.
    */
-  private getCleanEntityName(targetName: any): string {
+  private getCleanEntityName(targetName: unknown): string {
     const name = String(targetName);
     return name.endsWith('Entity') ? name.slice(0, -6) : name;
   }
