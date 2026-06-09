@@ -1,21 +1,40 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { TenantEntity } from './entities/tenant.entity';
+import { CreateTenantDto } from './dto/create-tenant.dto';
 
 @Injectable()
 export class TenantProvisioningService {
   private readonly logger = new Logger(TenantProvisioningService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectRepository(TenantEntity)
+    private readonly tenantRepo: Repository<TenantEntity>,
+  ) {}
+
+  async findAll() {
+    return this.tenantRepo.find({ order: { createdAt: 'DESC' } });
+  }
 
   /**
    * Khởi tạo Database cho một Tenant mới, và tạo schema cho các ứng dụng (admission, spm).
    */
   async provisionTenant(
-    tenantId: string,
+    dto: CreateTenantDto,
     apps: string[] = ['admission', 'spm'],
-  ): Promise<void> {
+  ): Promise<TenantEntity> {
+    const tenantId = dto.code;
     const dbName = `db_${tenantId}`;
+
+    // Kiểm tra Master DB xem đã có code này chưa
+    const existing = await this.tenantRepo.findOne({ where: { code: tenantId } });
+    if (existing) {
+      throw new ConflictException(`Tenant với mã ${tenantId} đã tồn tại trong hệ thống.`);
+    }
 
     // Kết nối vào database mặc định 'postgres' để có quyền tạo DB
     const client = new Client({
@@ -81,5 +100,11 @@ export class TenantProvisioningService {
     } finally {
       await tenantDbClient.end();
     }
+
+    // 3. Lưu thông tin vào Master DB
+    const newTenant = this.tenantRepo.create(dto);
+    const savedTenant = await this.tenantRepo.save(newTenant);
+    this.logger.log(`Tenant metadata for ${tenantId} saved to Master DB.`);
+    return savedTenant;
   }
 }

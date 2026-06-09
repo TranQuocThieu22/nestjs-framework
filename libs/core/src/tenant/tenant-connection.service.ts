@@ -4,6 +4,7 @@ import { ClsService } from 'nestjs-cls';
 import { DataSource, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
 
 import { AuditSubscriber } from '@app/shared-types/audit/audit.subscriber';
+import { TenantEntityRegistry } from './tenant-entity.registry';
 
 export const APP_NAME_TOKEN = 'APP_NAME';
 
@@ -48,10 +49,7 @@ export class TenantConnectionService {
       password: this.configService.get<string>('DB_PASSWORD')!,
       database: dbName,
       schema: this.appName, // Cách 1: schema per app
-      entities: [
-        __dirname + '/../../**/*.entity{.ts,.js}',
-        __dirname + '/../../../**/*.entity{.ts,.js}',
-      ],
+      entities: TenantEntityRegistry.getEntities(),
       synchronize: this.configService.get<string>('NODE_ENV') !== 'production', // Chú ý: trong production nên false
     });
 

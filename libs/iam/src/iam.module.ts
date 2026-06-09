@@ -11,6 +11,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CaslAbilityFactory } from './services/casl-ability.factory';
 import { PoliciesGuard } from './guards/policies.guard';
 
+import { TenantEntityRegistry } from '@app/core/tenant/tenant-entity.registry';
+
+TenantEntityRegistry.register([ActionEntity, ModuleEntity, RolePermissionEntity, RoleEntity, UserPermissionEntity]);
+
 @Module({
   providers: [JwtStrategy, JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],
   exports: [JwtAuthGuard, CaslAbilityFactory, PoliciesGuard],

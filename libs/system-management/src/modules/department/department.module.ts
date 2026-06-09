@@ -4,6 +4,9 @@ import { IamModule } from '@app/iam';
 import { DepartmentEntity } from './entities/department.entity';
 import { DepartmentController } from './controllers/department.controller';
 import { DepartmentService } from './services/department.service';
+import { TenantEntityRegistry } from '@app/core/tenant/tenant-entity.registry';
+
+TenantEntityRegistry.register([DepartmentEntity]);
 
 @Module({
   imports: [IamModule],
