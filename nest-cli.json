@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/edu-spm",
   "projects": {
+    "core": {
+      "type": "library",
+      "root": "libs/core",
+      "entryFile": "index",
+      "sourceRoot": "libs/core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/core/tsconfig.lib.json"
+      }
+    },
     "edu-admission": {
       "type": "application",
       "root": "apps/edu-admission",
@@ -28,22 +37,22 @@
         "tsConfigPath": "apps/edu-spm/tsconfig.app.json"
       }
     },
-    "system-management": {
-      "type": "library",
-      "root": "libs/system-management",
-      "entryFile": "index",
-      "sourceRoot": "libs/system-management/src",
+    "edu-srb": {
+      "type": "application",
+      "root": "apps/edu-srb",
+      "entryFile": "main",
+      "sourceRoot": "apps/edu-srb/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/system-management/tsconfig.lib.json"
+        "tsConfigPath": "apps/edu-srb/tsconfig.app.json"
       }
     },
-    "core": {
+    "iam": {
       "type": "library",
-      "root": "libs/core",
+      "root": "libs/iam",
       "entryFile": "index",
-      "sourceRoot": "libs/core/src",
+      "sourceRoot": "libs/iam/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/core/tsconfig.lib.json"
+        "tsConfigPath": "libs/iam/tsconfig.lib.json"
       }
     },
     "shared-types": {
@@ -55,13 +64,13 @@
         "tsConfigPath": "libs/shared-types/tsconfig.lib.json"
       }
     },
-    "iam": {
+    "system-management": {
       "type": "library",
-      "root": "libs/iam",
+      "root": "libs/system-management",
       "entryFile": "index",
-      "sourceRoot": "libs/iam/src",
+      "sourceRoot": "libs/system-management/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/iam/tsconfig.lib.json"
+        "tsConfigPath": "libs/system-management/tsconfig.lib.json"
       }
     }
   }
